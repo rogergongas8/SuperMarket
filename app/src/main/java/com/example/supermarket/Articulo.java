@@ -1,8 +1,8 @@
 package com.example.supermarket;
 
-// No necesita más imports
+import java.io.Serializable;
 
-public class Articulo {
+public class Articulo implements Serializable {
     private String descripcion;
     private double precioUnidad;
     private int cantidadComprada;
@@ -15,18 +15,15 @@ public class Articulo {
         this.cantidadComprada = 0;
     }
 
-    // --- Getters ---
     public String getDescripcion() { return descripcion; }
     public double getPrecioUnidad() { return precioUnidad; }
     public int getCantidadComprada() { return cantidadComprada; }
     public int getImagenResourceId() { return imagenResourceId; }
 
-    // Método de cálculo
     public double getPrecioTotal() {
         return precioUnidad * cantidadComprada;
     }
 
-    // --- Lógica de Control (Control 18: No negativos) ---
     public void incrementarCantidad() {
         this.cantidadComprada++;
     }
