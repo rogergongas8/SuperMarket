@@ -48,7 +48,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void inicializarArticulos() {
-        articulosDisponibles = new ArrayList<>();
+        // Si la lista ya existe, la limpiamos. Si no, la creamos.
+        if (articulosDisponibles == null) {
+            articulosDisponibles = new ArrayList<>();
+        } else {
+            articulosDisponibles.clear();
+        }
+
         if (hayInternet()) {
             descargarDatosDelServidor();
         } else {
@@ -117,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         Cursor cursor = db.rawQuery("SELECT * FROM articulos", null);
-
+        Toast.makeText(this, "Productos en BD: " + cursor.getCount(), Toast.LENGTH_SHORT).show();
         if (cursor.moveToFirst()) {
             do {
                 String desc = cursor.getString(1);
