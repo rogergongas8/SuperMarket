@@ -14,7 +14,7 @@
         android:layout_marginBottom="24dp"
         android:fontFamily="sans-serif-black"
         android:text="Tu Cesta"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="28sp" />
 
     <androidx.recyclerview.widget.RecyclerView
