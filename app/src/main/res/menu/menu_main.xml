@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/action_refresh"
-        android:icon="@android:drawable/ic_popup_sync"
-        android:title="Recargar Datos"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_ver_cesta"
-        android:title="Ver Cesta"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_salir"
+
+    <item android:id="@+id/action_refresh"
+        android:title="Recargar"
+        android:icon="@drawable/reload"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_ver_cesta"
+        android:title="Cesta"
+        android:icon="@drawable/cesta"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_perfil"
+        android:title="Mi Perfil"
+        android:icon="@drawable/icon"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/action_salir"
         android:title="Salir"
-        app:showAsAction="never" />
+        app:showAsAction="never"/>
 </menu>

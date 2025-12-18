@@ -7,14 +7,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "supermercado.db";
-    private static final int DATABASE_VERSION = 1;
+    // Subimos a la versión 4 para forzar el onUpgrade
+    private static final int DATABASE_VERSION = 5;
 
     private static final String TABLE_CREATE =
             "CREATE TABLE articulos (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "descripcion TEXT, " +
                     "precio REAL, " +
-                    "imagen_res_id INTEGER)";
+                    "imagen_nombre TEXT)";
 
     public AdminSQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -33,24 +34,28 @@ public class AdminSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     private void insertarDatosIniciales(SQLiteDatabase db) {
-        // Array de datos para rellenar rápido
         Object[][] datos = {
-                {"Naranja", 0.50, R.drawable.ic_launcher_foreground},
-                {"Limón", 0.60, R.drawable.ic_launcher_foreground},
-                {"Piña", 1.20, R.drawable.ic_launcher_foreground},
-                {"Uvas", 2.50, R.drawable.ic_launcher_foreground},
-                {"Ciruela", 0.40, R.drawable.ic_launcher_foreground},
-                {"Melocotón", 0.80, R.drawable.ic_launcher_foreground},
-                {"Sandía", 3.00, R.drawable.ic_launcher_foreground},
-                {"Melón", 2.80, R.drawable.ic_launcher_foreground},
-                {"Pera", 0.55, R.drawable.ic_launcher_foreground},
-                {"Cereza", 4.00, R.drawable.ic_launcher_foreground}
+                {"Naranja", 0.50, "naranja"},
+                {"Limón", 0.60, "limon"},
+                {"Piña", 1.20, "pina"},
+                {"Uvas", 2.50, "uvas"},
+                {"Ciruela", 0.40, "ciruela"},
+                {"Melocotón", 0.80, "melocoton"},
+                {"Sandía", 3.00, "sandia"},
+                {"Melón", 2.80, "melon"},
+                {"Pera", 0.55, "pera"},
+                {"Cereza", 4.00, "cereza"},
+                {"Fresa", 3.50, "fresa"},
+                {"Plátano", 1.10, "platano"},
+                {"Manzana", 1.50, "manzana"},
+                {"Kiwi", 2.50, "kiwi"},
         };
 
         for (Object[] dato : datos) {
-            db.execSQL("INSERT INTO articulos (descripcion, precio, imagen_res_id) VALUES (?, ?, ?)", dato);
+            db.execSQL("INSERT INTO articulos (descripcion, precio, imagen_nombre) VALUES (?, ?, ?)", dato);
         }
     }
+
     public void borrarTodosLosArticulos() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM articulos");

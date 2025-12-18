@@ -5,35 +5,11 @@
     android:layout_height="match_parent"
     android:background="@color/bg_app">
 
-    <LinearLayout
-        android:id="@+id/header_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:background="@color/white"
-        android:elevation="4dp"> <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Marketplace"
-        android:textColor="@color/text_primary"
-        android:textSize="28sp"
-        android:fontFamily="sans-serif-black"
-        android:letterSpacing="-0.02"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Explora lo último en tecnología"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"/>
-    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_articulos"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/header_container"
         android:layout_above="@id/container_bottom"
         android:clipToPadding="false"
         android:paddingTop="16dp"

@@ -2,6 +2,8 @@ package com.example.supermarket;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +19,8 @@ public class ArticulosAdapter extends RecyclerView.Adapter<ArticulosAdapter.Arti
 
     private final List<Articulo> articulosList;
     private final Context context;
-    private final Runnable alCambiarCantidad; // Avisador de cambios
+    private final Runnable alCambiarCantidad;
 
-    // Constructor
     public ArticulosAdapter(Context context, List<Articulo> articulosList, Runnable alCambiarCantidad) {
         this.context = context;
         this.articulosList = articulosList;
@@ -55,26 +56,26 @@ public class ArticulosAdapter extends RecyclerView.Adapter<ArticulosAdapter.Arti
         Articulo articulo = articulosList.get(position);
 
         holder.descripcionTV.setText(articulo.getDescripcion());
-        holder.imagenIV.setImageResource(articulo.getImagenResourceId());
         holder.precioUnidadTV.setText(String.format(Locale.getDefault(), "%.2f€/ud", articulo.getPrecioUnidad()));
+
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), articulo.getImagenResourceId());
+        holder.imagenIV.setImageBitmap(bitmap);
+
 
         actualizarVistas(holder, articulo);
 
-        // Click en Botón +
         holder.sumarBtn.setOnClickListener(v -> {
             articulo.incrementarCantidad();
             actualizarVistas(holder, articulo);
-            if (alCambiarCantidad != null) alCambiarCantidad.run(); // Avisamos
+            if (alCambiarCantidad != null) alCambiarCantidad.run();
         });
 
-        // Click en Botón -
         holder.restarBtn.setOnClickListener(v -> {
             articulo.decrementarCantidad();
             actualizarVistas(holder, articulo);
-            if (alCambiarCantidad != null) alCambiarCantidad.run(); // Avisamos
+            if (alCambiarCantidad != null) alCambiarCantidad.run();
         });
 
-        // Click en la tarjeta (Detalles)
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetalleActivity.class);
             intent.putExtra("detalle_articulo", articulo);

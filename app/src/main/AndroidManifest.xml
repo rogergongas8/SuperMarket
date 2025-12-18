@@ -27,6 +27,9 @@
 
         <activity android:name=".SegundaActivity" />
         <activity android:name=".DetalleActivity" />
+        <activity android:name=".PerfilActivity" />
+
+
 
     </application>
 </manifest>

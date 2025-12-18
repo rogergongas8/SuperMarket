@@ -12,7 +12,6 @@ import android.widget.Toast;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
@@ -28,8 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private List<Articulo> articulosDisponibles;
     private ArticulosAdapter adapter;
 
-    // ¡OJO! CAMBIA ESTA IP POR LA TUYA DE VERDAD (ej: 192.168.1.35)
-    // Si usas emulador, deja 10.0.2.2
+    // Asegúrate de que esta IP es correcta (10.0.2.2 para emulador)
     private static final String URL_API = "http://10.0.2.2/supermercado/obtener_articulos.php";
 
     @Override
@@ -42,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recycler_view_articulos);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Pasamos 'null' porque aquí no necesitamos recalcular totales globales
         adapter = new ArticulosAdapter(this, articulosDisponibles, null);
         recyclerView.setAdapter(adapter);
 
@@ -55,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         if (hayInternet()) {
             descargarDatosDelServidor();
         } else {
-            Toast.makeText(this, "Modo Offline", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Modo Offline (SQLite)", Toast.LENGTH_SHORT).show();
             cargarDesdeSQLite();
         }
     }
@@ -67,55 +64,84 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void descargarDatosDelServidor() {
+        // 1. LIMPIEZA AGRESIVA DE CACHÉ
+        com.android.volley.RequestQueue queue = Volley.newRequestQueue(this);
+        queue.getCache().clear();
         JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, URL_API, null,
                 response -> {
                     AdminSQLiteOpenHelper dbHelper = new AdminSQLiteOpenHelper(this);
-                    dbHelper.borrarTodosLosArticulos();
-                    SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+                    // Borramos datos viejos
+                    dbHelper.borrarTodosLosArticulos();
+
+                    SQLiteDatabase db = dbHelper.getWritableDatabase();
+                    // Usamos una transacción para que sea más rápido y seguro
+                    db.beginTransaction();
                     try {
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject jsonObject = response.getJSONObject(i);
                             String desc = jsonObject.getString("descripcion");
                             double precio = jsonObject.getDouble("precio");
-                            int imagenId = R.drawable.ic_launcher_foreground; // Imagen por defecto
 
-                            db.execSQL("INSERT INTO articulos (descripcion, precio, imagen_res_id) VALUES (?, ?, ?)",
-                                    new Object[]{desc, precio, imagenId});
+                            String nombreImagenClean = limpiarNombre(desc);
+
+                            db.execSQL("INSERT INTO articulos (descripcion, precio, imagen_nombre) VALUES (?, ?, ?)",
+                                    new Object[]{desc, precio, nombreImagenClean});
                         }
-                        db.close();
-                        cargarDesdeSQLite();
-                        Toast.makeText(this, "Datos actualizados", Toast.LENGTH_SHORT).show();
+                        db.setTransactionSuccessful();
 
                     } catch (JSONException e) {
                         e.printStackTrace();
+                    } finally {
+                        db.endTransaction();
+                        db.close();
                     }
+
+                    cargarDesdeSQLite();
+                    Toast.makeText(this, "Datos actualizados: Precio Naranja actualizado", Toast.LENGTH_SHORT).show();
                 },
                 error -> {
-                    Toast.makeText(this, "Error XAMPP: " + error.toString(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Error conexión. Usando datos locales.", Toast.LENGTH_LONG).show();
                     cargarDesdeSQLite();
                 }
         );
-        Volley.newRequestQueue(this).add(request);
+
+        request.setShouldCache(false);
+
+        queue.add(request);
     }
 
     private void cargarDesdeSQLite() {
         articulosDisponibles.clear();
         AdminSQLiteOpenHelper dbHelper = new AdminSQLiteOpenHelper(this);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+
         Cursor cursor = db.rawQuery("SELECT * FROM articulos", null);
 
         if (cursor.moveToFirst()) {
             do {
                 String desc = cursor.getString(1);
                 double precio = cursor.getDouble(2);
-                int imgId = cursor.getInt(3);
+                String nombreImgTexto = cursor.getString(3);
+
+                int imgId = getResources().getIdentifier(nombreImgTexto, "drawable", getPackageName());
+                if (imgId == 0) {
+                    imgId = R.drawable.ic_launcher_foreground;
+                }
+
                 articulosDisponibles.add(new Articulo(desc, precio, imgId));
             } while (cursor.moveToNext());
         }
         cursor.close();
         db.close();
         if (adapter != null) adapter.notifyDataSetChanged();
+    }
+
+    private String limpiarNombre(String nombre) {
+        if (nombre == null) return "ic_launcher_foreground";
+        return nombre.toLowerCase()
+                .replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u")
+                .replace("ñ", "n").replace(" ", "_");
     }
 
     private void navegarACesta() {
@@ -133,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Menú de opciones
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -142,13 +167,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_refresh) {
             inicializarArticulos();
             return true;
-        } else if (item.getItemId() == R.id.action_ver_cesta) {
+        } else if (id == R.id.action_ver_cesta) {
             navegarACesta();
             return true;
-        } else if (item.getItemId() == R.id.action_salir) {
+        } else if (id == R.id.action_perfil) {
+            startActivity(new Intent(this, PerfilActivity.class));
+            return true;
+        } else if (id == R.id.action_salir) {
             finish();
             return true;
         }

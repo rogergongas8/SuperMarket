@@ -72,6 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:text="Volver"
+            android:textSize="20dp"
             android:textColor="@color/brand_blue"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_marginTop="40dp"/>
