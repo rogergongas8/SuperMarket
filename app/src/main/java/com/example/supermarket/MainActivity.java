@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     cargarDesdeSQLite();
-                    Toast.makeText(this, "Datos actualizados: Precio Naranja actualizado", Toast.LENGTH_SHORT).show();
                 },
                 error -> {
                     Toast.makeText(this, "Error conexión. Usando datos locales.", Toast.LENGTH_LONG).show();
